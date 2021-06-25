@@ -20,12 +20,25 @@ app.get('/', (req, res) => {
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.c4bol.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
-  const collection = client.db("Blogger-diaries").collection("blogs");
-  console.log('database connected');
+  const BlogsCollection = client.db("Blogger-diaries").collection("blogs");
+
+  app.post('/blogs', (req, res) => {
+    const addBlog = req.body
+    BlogsCollection.insertOne(addBlog)
+      .then(result => {
+        res.send(result)
+        console.log(result);
+      })
+  })
+
+  app.get('/allBlog', (req, res) => {
+    BlogsCollection.find({})
+      .toArray((err, blogDetails) => {
+        res.send(blogDetails)
+      })
+  })
 
 });
 
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
+app.listen(port)
